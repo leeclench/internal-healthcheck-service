@@ -253,7 +253,7 @@ I have gone ahead and created and intentionally small CI pipeline that validates
 This can be found in the `.github\workflows\ci.yml` file.
 This should guarantee that unit testing runs smoothly, the docker elements build correctly and the application is smoke tested.
 
-Future considerations
+**Future considerations**
 - Add Static Application Security Testing (SAST) and dependancy scanning to help enable shift-left thinking.
 - Add in a deployment state behind approvals
 - Add in chaos testing of the platform
