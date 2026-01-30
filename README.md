@@ -242,7 +242,7 @@ The system should degrade gracefully and recover without manual intervention.
 
 The key thing to think about is that the overall goal isn’t to test everything, but to ensure that when things fail, they fail loudly, observably and recover safely in an automatic fashion where neccessary.
 
-### CI/CD Pipeline via GitHub Actions
+### 🛢️ CI/CD Pipeline via GitHub Actions
 A lightweight CI pipeline is recommended to enforce correctness without slowing iteration.
 Goals
 - Fast feedback on every pull request
