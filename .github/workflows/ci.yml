@@ -30,6 +30,8 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run pytest
+        env:
+          PYTHONPATH: .
         run: pytest --disable-warnings --maxfail=1
 
   docker:
