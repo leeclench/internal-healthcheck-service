@@ -21,7 +21,7 @@ The solution intentionally demonstrates:
   - Kubernetes
 
 ## Project structure
-'''
+```
 internal-healthcheck-service/
 ├── app/
 │ └── main.py
@@ -33,7 +33,7 @@ internal-healthcheck-service/
 │ ├── service.yaml
 │ └── servicemonitor.yaml
 └── README.md
-'''
+```
 
 ## How to run locally
 ### Prerequisites
@@ -42,13 +42,13 @@ internal-healthcheck-service/
 
 ### First step
 Clone this repository
-'''
+```
 git clone https://github.com/leeclench/internal-healthcheck-service.git
 cd internal-healthcheck-service
-'''
+```
 
 ### Run locally without Docker
-'''
+```
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -57,37 +57,37 @@ export PEER_URL=http://localhost:8080/health
 export CHECK_INTERVAL=5
 
 uvicorn app.main:app --host 0.0.0.0 --port 8080
-'''
+```
 ### Run two instances locally
 Terminal 1:
-'''
+```
 export PEER_URL=http://localhost:8081/health
 uvicorn app.main:app --port 8080
-'''
+```
 Terminal 2:
-'''
+```
 export PEER_URL=http://localhost:8080/health
 uvicorn app.main:app --port 8081
-'''
+```
 
 ### Run with Docker Compose (the recommended option)
-'''
+```
 docker compose up --build
-'''
+```
 
 Test the health check services
-'''
+```
 # Access service A
 curl http://localhost:8001/health
 # Access service B
 curl http://localhost:8002/health
 # Toggle service A’s health
 curl -X POST http://localhost:8001/toggle
-''' 
+``` 
 
 ### Kubernetes and Prometheus example
-In Kubernetes, the 'ServiceMonitor' resource tells Prometheus where and how to scrape metrics:
-'''
+In Kubernetes, the `ServiceMonitor` resource tells Prometheus where and how to scrape metrics:
+```
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -100,8 +100,8 @@ spec:
   - path: /metrics
     port: http
     interval: 15s
-'''
-Prometheus automatically discovers the service and begins scraping '/metrics'.
+```
+Prometheus automatically discovers the service and begins scraping `/metrics`.
 
 **Why this matters?**
 - Applications do **not** send alerts
@@ -110,7 +110,7 @@ Prometheus automatically discovers the service and begins scraping '/metrics'.
 This keeps alerting flexible, auditable, and SLO-driven.
 
 ### Prometheus alterting examples
-'''
+```
 groups:
 - name: healthcheck-alerts
   rules:
@@ -127,10 +127,10 @@ groups:
     for: 2m
     labels:
       severity: critical
-'''
+```
 
 ### Metrics endpoint usage
-The '/metrics' endpoint exposes **Prometheus-formatted metrics**. It is *not* intended for human use and should never be polled by application code.
+The `/metrics` endpoint exposes **Prometheus-formatted metrics**. It is *not* intended for human use and should never be polled by application code.
 Instead, it is consumed by a metrics collector such as:
 - Prometheus
 - AWS Managed Prometheus
@@ -139,8 +139,8 @@ Instead, it is consumed by a metrics collector such as:
 Prometheus periodically **scrapes** this endpoint and stores time-series data.
 
 ### How metrics flow through the system
-1. Application exposes '/metrics'
-2. Prometheus scrapes '/metrics' every N seconds
+1. Application exposes `/metrics`
+2. Prometheus scrapes `/metrics` every N seconds
 3. Metrics are stored as time-series
 4. Alert rules evaluate those time-series
 5. Alertmanager routes notifications (Slack, PagerDuty, Opsgenie, etc.)
@@ -152,8 +152,8 @@ This decoupling is intentional:
 ### Metrics exposed
 | Metric                    | Type    | Description                                  |
 | ------                    | ------  | ------                                       |
-| 'peer_up'                 | Gauge   | '1' when peer is healthy, '0' when unhealthy |
-| 'peer_check_errors_total' | Counter | Total errors when attempting to contact peer |
+| `peer_up`                 | Gauge   | `1` when peer is healthy, `0` when unhealthy |
+| `peer_check_errors_total` | Counter | Total errors when attempting to contact peer |
 
 ### Configuration Options
 
@@ -161,10 +161,10 @@ All configuration is environment-variable based.
 
 | Variable            | Required | Description                                        | Default                        |
 | -------             | -------- | -------                                            | -------                        |
-| 'PEER_URL'          | Yes      | URL of peer instance health endpoint               | 'http://localhost:8080/health' |
-| 'CHECK_INTERVAL'    | No       | Interval between peer health checks (seconds)      | '5'                            |
-| 'LOG_LEVEL'         | No       | Logging verbosity (future extension)               | 'INFO'                         |
-| 'REQUEST_TIMEOUT'   | No       | Peer request timeout in seconds (future extension) | '8000'                         |
+| `PEER_URL`          | Yes      | URL of peer instance health endpoint               | `http://localhost:8080/health` |
+| `CHECK_INTERVAL`    | No       | Interval between peer health checks (seconds)      | `5`                            |
+| `LOG_LEVEL`         | No       | Logging verbosity (future extension)               | `INFO`                         |
+| `REQUEST_TIMEOUT`   | No       | Peer request timeout in seconds (future extension) | `8000`                         |
 
 **Why environment variables?**
 - Works across VMs, containers, ECS and Kubernetes
@@ -182,8 +182,8 @@ All configuration is environment-variable based.
   - Leader election (using something like the kubernetes lease API)
   - Centralized probing
 **Threat model considerations**
-- '/toggle' endpoint must be protected in production
-- There is potential Server-Side Request Forgery (SSRF) risk if 'PEER_URL' is user-controlled
+- `/toggle` endpoint must be protected in production
+- There is potential Server-Side Request Forgery (SSRF) risk if `PEER_URL` is user-controlled
 - Recommended actions:
   - Implement or adapt NetworkPolicy restrictions for input validation
   - Enhance AuthN/Z via the use of RBAC/ABAC/IAM policies
