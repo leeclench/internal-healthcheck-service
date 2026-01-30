@@ -8,7 +8,7 @@ The solution intentionally demonstrates:
 - Explicit tradeoff documention
 - Clear growth paths toward production grade reliability alerting and scale
 
-## Architecture Overview
+## 🧩 Architecture Overview
 - Language: Python 3.12
 - Framework: FastAPI (lightweight, async-friendly, production-ready)
 - Execution model:
@@ -20,7 +20,7 @@ The solution intentionally demonstrates:
   - AWS ECS
   - Kubernetes
 
-## Project structure
+## 📁 Project structure
 ```
 internal-healthcheck-service/
 ├── app/
@@ -35,19 +35,19 @@ internal-healthcheck-service/
 └── README.md
 ```
 
-## How to run locally
+## 🧰 How to run locally
 ### Prerequisites
 - Python 3.12+
 - Docker (optional but recommended)
 
-### First step
+### 💾 First step
 Clone this repository
 ```
 git clone https://github.com/leeclench/internal-healthcheck-service.git
 cd internal-healthcheck-service
 ```
 
-### Run locally without Docker
+### 🖥️ Run locally without Docker
 ```
 python -m venv .venv
 source .venv/bin/activate
@@ -58,7 +58,7 @@ export CHECK_INTERVAL=5
 
 uvicorn app.main:app --host 0.0.0.0 --port 8080
 ```
-### Run two instances locally
+### 🖥️🖥️ Run two instances locally
 Terminal 1:
 ```
 export PEER_URL=http://localhost:8081/health
@@ -70,7 +70,7 @@ export PEER_URL=http://localhost:8080/health
 uvicorn app.main:app --port 8081
 ```
 
-### Run with Docker Compose (the recommended option)
+### 🐋 Run with Docker Compose (the recommended option)
 ```
 docker compose up --build
 ```
@@ -85,7 +85,7 @@ curl http://localhost:8002/health
 curl -X POST http://localhost:8001/toggle
 ``` 
 
-### Kubernetes and Prometheus example
+### 📟 Kubernetes and Prometheus example
 In Kubernetes, the `ServiceMonitor` resource tells Prometheus where and how to scrape metrics:
 ```
 apiVersion: monitoring.coreos.com/v1
@@ -109,7 +109,7 @@ Prometheus automatically discovers the service and begins scraping `/metrics`.
 - Alerting logic evolves independently of deployments
 This keeps alerting flexible, auditable, and SLO-driven.
 
-### Prometheus alterting examples
+### 🚨 Prometheus alterting examples
 ```
 groups:
 - name: healthcheck-alerts
@@ -129,7 +129,7 @@ groups:
       severity: critical
 ```
 
-### Metrics endpoint usage
+### 📈 Metrics endpoint usage
 The `/metrics` endpoint exposes **Prometheus-formatted metrics**. It is *not* intended for human use and should never be polled by application code.
 Instead, it is consumed by a metrics collector such as:
 - Prometheus
@@ -138,7 +138,7 @@ Instead, it is consumed by a metrics collector such as:
 - OpenTelemetry Collector (Prometheus receiver)
 Prometheus periodically **scrapes** this endpoint and stores time-series data.
 
-### How metrics flow through the system
+### 🌊 How metrics flow through the system
 1. Application exposes `/metrics`
 2. Prometheus scrapes `/metrics` every N seconds
 3. Metrics are stored as time-series
@@ -149,13 +149,13 @@ This decoupling is intentional:
 - The app emits *signals*
 - The platform decides *what matters*
 
-### Metrics exposed
+### 🕶️ Metrics exposed
 | Metric                    | Type    | Description                                  |
 | ------                    | ------  | ------                                       |
 | `peer_up`                 | Gauge   | `1` when peer is healthy, `0` when unhealthy |
 | `peer_check_errors_total` | Counter | Total errors when attempting to contact peer |
 
-### Configuration Options
+### 🛠️ Configuration Options
 
 All configuration is environment-variable based.
 
@@ -171,7 +171,7 @@ All configuration is environment-variable based.
 - No baked-in config files
 - Safe to override per-environment
 
-### Design notes and future considerations
+### 🔮 Design notes and future considerations
 **Service Level Objectives (SLOs) & error budgets**
 - Should aim to have SLO availability be around 99.9%
 - The error budget should drive the alert sensitivity
