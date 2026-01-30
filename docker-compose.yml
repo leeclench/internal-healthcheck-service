@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  app1:
+    build: .
+    environment:
+      PEER_URL: http://app2:8080/health
+      CHECK_INTERVAL: 5
+    ports:
+      - "8081:8080"
+
+  app2:
+    build: .
+    environment:
+      PEER_URL: http://app1:8080/health
+      CHECK_INTERVAL: 5
+    ports:
+      - "8082:8080"

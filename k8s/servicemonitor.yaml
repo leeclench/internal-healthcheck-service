@@ -1,0 +1,11 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: healthcheck
+spec:
+  selector:
+    matchLabels:
+      app: healthcheck
+  endpoints:
+    - port: http
+      path: /metrics
