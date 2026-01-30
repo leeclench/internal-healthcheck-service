@@ -23,15 +23,24 @@ The solution intentionally demonstrates:
 ## 📁 Project structure
 ```
 internal-healthcheck-service/
+├── .github/
+│ └── workflows/
+│     └── ci.yml
 ├── app/
 │ └── main.py
 ├── requirements.txt
+├── requirements-dev.txt
 ├── Dockerfile
 ├── docker-compose.yml
 ├── k8s/
 │ ├── deployment.yaml
 │ ├── service.yaml
 │ └── servicemonitor.yaml
+├── tests/
+│ ├── test_health.py
+│ ├── test_metrics.py
+│ ├── test_peer_check.py
+│ └── test_toggle.py
 └── README.md
 ```
 
@@ -86,7 +95,7 @@ curl -X POST http://localhost:8001/toggle
 ``` 
 
 ### 📟 Kubernetes and Prometheus example
-In Kubernetes, the `ServiceMonitor` resource tells Prometheus where and how to scrape metrics:
+In Kubernetes, the `ServiceMonitor` resource tells Prometheus **where and how** to scrape metrics:
 ```
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -107,7 +116,7 @@ Prometheus automatically discovers the service and begins scraping `/metrics`.
 - Applications do **not** send alerts
 - Applications emit **telemetry**
 - Alerting logic evolves independently of deployments
-This keeps alerting flexible, auditable, and SLO-driven.
+This keeps alerting flexible, auditable and SLO-driven.
 
 ### 🚨 Prometheus alterting examples
 ```
@@ -193,3 +202,58 @@ All configuration is environment-variable based.
 **Tracing (possible areas for future considerations)**
 - Implement OpenTelemetry spans around peer checks
 - Correlate failures across services
+
+### 🧑‍🔬 Testing Strategy
+Testing is designed to build confidence incrementally, from fast unit tests to Kubernetes-level validation. The goal is not exhaustive coverage, but trustworthy signals.
+
+**Unit tests**
+Unit tests validate application behavior without real network calls.
+Focus areas:
+- `/health` returns correct status codes
+- `/toggle` flips internal state
+- Peer-check logic updates metrics correctly
+Mocking external HTTP calls ensures tests are fast and deterministic.
+
+**Integration tests**
+Integration tests validate real HTTP behavior using Docker Compose.
+These tests ensure:
+- Two instances can discover and check each other
+- Health transitions propagate correctly
+- Metrics endpoints are reachable
+
+**Metrics validation**
+Metrics correctness is validated by scraping `/metrics` and asserting:
+- Metrics exist
+- Values change in response to failures
+Broken metrics are considered a production risk.
+
+**Kubernetes validation**
+Before production deployment, validate:
+- Pods reach Ready state
+- Liveness probe restarts unhealthy pods
+- Rolling restarts do not cause alert flapping
+
+**Failure injection**
+Recommended manual tests:
+- Kill a pod and observe recovery
+- Toggle health to unhealthy
+- Temporarily block network traffic
+The system should degrade gracefully and recover without manual intervention.
+
+The key thing to think about is that the overall goal isn’t to test everything, but to ensure that when things fail, they fail loudly, observably and recover safely in an automatic fashion where neccessary.
+
+### CI/CD Pipeline via GitHub Actions
+A lightweight CI pipeline is recommended to enforce correctness without slowing iteration.
+Goals
+- Fast feedback on every pull request
+- Prevent broken images or regressions
+- Validate observability does not silently fail
+
+I have gone ahead and created and intentionally small CI pipeline that validates correctness and operability without slowing down any iteration going forward.
+This can be found in the `.github\workflows\ci.yml` file.
+This should guarantee that unit testing runs smoothly, the docker elements build correctly and the application is smoke tested.
+
+Future considerations
+- Add Static Application Security Testing (SAST) and dependancy scanning to help enable shift-left thinking.
+- Add in a deployment state behind approvals
+- Add in chaos testing of the platform
