@@ -213,6 +213,7 @@ All configuration is environment-variable based.
 Testing is designed to build confidence incrementally, from fast unit tests to Kubernetes-level validation. The goal is not exhaustive coverage, but trustworthy signals.
 
 **Unit tests**
+
 Unit tests validate application behavior without real network calls.
 Focus areas:
 - `/health` returns correct status codes
@@ -222,6 +223,7 @@ Focus areas:
 Mocking external HTTP calls ensures tests are fast and deterministic.
 
 **Integration tests**
+
 Integration tests validate real HTTP behavior using Docker Compose.
 These tests ensure:
 - Two instances can discover and check each other
@@ -229,6 +231,7 @@ These tests ensure:
 - Metrics endpoints are reachable
 
 **Metrics validation**
+
 Metrics correctness is validated by scraping `/metrics` and asserting:
 - Metrics exist
 - Values change in response to failures
@@ -236,12 +239,14 @@ Metrics correctness is validated by scraping `/metrics` and asserting:
 Broken metrics are considered a production risk.
 
 **Kubernetes validation**
+
 Before production deployment, validate:
 - Pods reach Ready state
 - Liveness probe restarts unhealthy pods
 - Rolling restarts do not cause alert flapping
 
 **Failure injection**
+
 Recommended manual tests:
 - Kill a pod and observe recovery
 - Toggle health to unhealthy
