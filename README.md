@@ -115,7 +115,8 @@ Prometheus automatically discovers the service and begins scraping `/metrics`.
 **Why this matters?**
 - Applications do **not** send alerts
 - Applications emit **telemetry**
-- Alerting logic evolves independently of deployments
+- Alerting logic evolves independently of deployments.
+
 This keeps alerting flexible, auditable and SLO-driven.
 
 ### 🚨 Prometheus alterting examples
@@ -145,6 +146,7 @@ Instead, it is consumed by a metrics collector such as:
 - AWS Managed Prometheus
 - Grafana Agent
 - OpenTelemetry Collector (Prometheus receiver)
+
 Prometheus periodically **scrapes** this endpoint and stores time-series data.
 
 ### 🌊 How metrics flow through the system
@@ -185,20 +187,24 @@ All configuration is environment-variable based.
 - Should aim to have SLO availability be around 99.9%
 - The error budget should drive the alert sensitivity
 - Alerts should fire on the overall error budget burn rather than on single failures.
+
 **Leader election vs mesh checking**
 - Current design uses mesh-style peer checks
 - At scale, replace with:
   - Leader election (using something like the kubernetes lease API)
   - Centralized probing
+
 **Threat model considerations**
 - `/toggle` endpoint must be protected in production
 - There is potential Server-Side Request Forgery (SSRF) risk if `PEER_URL` is user-controlled
 - Recommended actions:
   - Implement or adapt NetworkPolicy restrictions for input validation
   - Enhance AuthN/Z via the use of RBAC/ABAC/IAM policies
+
 **Graceful shutdown**
 - SIGTERM handling for rolling deploys
 - Prevents false alerts during pod termination
+
 **Tracing (possible areas for future considerations)**
 - Implement OpenTelemetry spans around peer checks
 - Correlate failures across services
@@ -212,6 +218,7 @@ Focus areas:
 - `/health` returns correct status codes
 - `/toggle` flips internal state
 - Peer-check logic updates metrics correctly
+
 Mocking external HTTP calls ensures tests are fast and deterministic.
 
 **Integration tests**
@@ -225,6 +232,7 @@ These tests ensure:
 Metrics correctness is validated by scraping `/metrics` and asserting:
 - Metrics exist
 - Values change in response to failures
+
 Broken metrics are considered a production risk.
 
 **Kubernetes validation**
@@ -238,12 +246,14 @@ Recommended manual tests:
 - Kill a pod and observe recovery
 - Toggle health to unhealthy
 - Temporarily block network traffic
+
 The system should degrade gracefully and recover without manual intervention.
 
 The key thing to think about is that the overall goal isn’t to test everything, but to ensure that when things fail, they fail loudly, observably and recover safely in an automatic fashion where neccessary.
 
 ### 🛢️ CI/CD Pipeline via GitHub Actions
 A lightweight CI pipeline is recommended to enforce correctness without slowing iteration.
+
 Goals
 - Fast feedback on every pull request
 - Prevent broken images or regressions
