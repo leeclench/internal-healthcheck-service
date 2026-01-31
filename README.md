@@ -264,9 +264,9 @@ Goals
 - Prevent broken images or regressions
 - Validate observability does not silently fail
 
-I have gone ahead and created and intentionally small CI pipeline that validates correctness and operability without slowing down any iteration going forward.
+I have gone ahead and created an intentionally small CI pipeline that validates correctness and operability without slowing down any iteration going forward.
 This can be found in the `.github\workflows\ci.yml` file.
-This should guarantee that unit testing runs smoothly, the docker elements build correctly and the application is smoke tested.
+This should guarantee that unit testing runs smoothly, the docker elements build correctly and the application is appropriately smoke tested.
 
 **Future considerations**
 - Add Static Application Security Testing (SAST) and dependancy scanning to help enable shift-left thinking.
